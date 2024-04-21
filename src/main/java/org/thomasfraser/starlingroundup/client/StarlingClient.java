@@ -6,35 +6,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thomasfraser.starlingroundup.dto.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+
 import java.util.UUID;
 
 @Component
 public class StarlingClient {
 
     private static final Logger LOGGER = LogManager.getLogger(StarlingClient.class);
-    private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${starling.api.baseUrl}")
     private String baseUrl;
 
-    @Value("${starling.api.token}")
-    private String apiToken;
+    @Autowired
+    private HttpHeaders headers;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
 
     public List<AccountDto> fetchClientAccounts() {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.set("Authorization", "Bearer " + apiToken);
             HttpEntity<String> entity = new HttpEntity<>(headers);
-
             ResponseEntity<AccountsResponseDto> response = restTemplate.exchange(
                     baseUrl + "/accounts",
                     HttpMethod.GET,
@@ -52,9 +49,6 @@ public class StarlingClient {
     }
 
     public List<TransactionDto> fetchTransactions(String accountUuid, String categoryId, String minTimestamp, String maxTimestamp) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Bearer " + apiToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // Building the URL with query parameters
@@ -81,10 +75,6 @@ public class StarlingClient {
     }
 
     public void createSavingsGoal(String accountUuid, String savingsGoalsName) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Bearer " + apiToken);
-
         HttpEntity<SavingsGoalRequestDto> entity = getSavingsGoalRequestDtoHttpEntity(headers, savingsGoalsName);
 
         // Building the URL with query parameters
@@ -107,9 +97,6 @@ public class StarlingClient {
     }
 
     public List<SavingsAccountDto> getSavingsGoals(String accountUuid) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Bearer " + apiToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // Building the URL with query parameters
@@ -133,10 +120,6 @@ public class StarlingClient {
     }
 
     public boolean addMoneyToSavingsGoal(String accountUuid, String savingsGoalUid, int roundUpTotal) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Bearer " + apiToken);
-
         AmountDto amountDto = new AmountDto();
         amountDto.setCurrency("GBP");
         amountDto.setMinorUnits(roundUpTotal);
