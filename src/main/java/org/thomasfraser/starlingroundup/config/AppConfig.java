@@ -9,6 +9,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 
+/**
+ * Configuration class for the application.
+ * It provides beans for HttpHeaders and RestTemplate.
+ */
 @Configuration
 public class AppConfig {
 

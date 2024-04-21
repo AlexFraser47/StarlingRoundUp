@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thomasfraser.starlingroundup.dto.*;
@@ -15,7 +15,10 @@ import java.util.List;
 
 import java.util.UUID;
 
-@Component
+/**
+ * Client class for interacting with the Starling API.
+ */
+@Service
 public class StarlingClient {
 
     private static final Logger LOGGER = LogManager.getLogger(StarlingClient.class);
@@ -28,7 +31,6 @@ public class StarlingClient {
 
     @Autowired
     private RestTemplate restTemplate;
-
 
     public List<AccountDto> fetchClientAccounts() {
             HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -48,12 +50,12 @@ public class StarlingClient {
         }
     }
 
-    public List<TransactionDto> fetchTransactions(String accountUuid, String categoryId, String minTimestamp, String maxTimestamp) {
+    public List<TransactionDto> fetchTransactions(String accountUuid, String minTimestamp, String maxTimestamp) {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         // Building the URL with query parameters
         String urlTemplate = UriComponentsBuilder
-                .fromHttpUrl(baseUrl + "/feed/account/" + accountUuid + "/category/" + categoryId + "/transactions-between")
+                .fromHttpUrl(baseUrl + "/feed/account/" + accountUuid + "/settled-transactions-between")
                 .queryParam("minTransactionTimestamp", minTimestamp)
                 .queryParam("maxTransactionTimestamp", maxTimestamp)
                 .toUriString();

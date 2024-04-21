@@ -10,6 +10,9 @@ import org.thomasfraser.starlingroundup.service.RoundUpService;
 
 import java.math.BigDecimal;
 
+/**
+ * Controller class for handling API requests related to round up operations.
+ */
 @RestController
 @RequestMapping("/api")
 public class RoundUpController {
@@ -31,16 +34,6 @@ public class RoundUpController {
             return ResponseEntity.ok("Round up completed successfully. Total rounded up: £" + roundUpAmount);
         } catch (Exception e){
             return ResponseEntity.badRequest().body("Failed to complete round up: " + e.getMessage());
-        }
-    }
-
-    @RequestMapping("/accounts")
-    public ResponseEntity<String> accounts() {
-        LOGGER.info("Account details request received");
-        try {
-            return ResponseEntity.ok(roundUpService.getAccountInfo());
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body("Failed to fetch account details" + e.getMessage());
         }
     }
 }

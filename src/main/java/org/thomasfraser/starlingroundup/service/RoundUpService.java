@@ -8,19 +8,21 @@ import org.thomasfraser.starlingroundup.client.StarlingClient;
 import org.thomasfraser.starlingroundup.dto.AccountDto;
 import org.thomasfraser.starlingroundup.dto.SavingsAccountDto;
 import org.thomasfraser.starlingroundup.dto.TransactionDto;
-import org.thomasfraser.starlingroundup.util.JsonUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * Service class for handling round up operations.
+ */
 @Service
 public class RoundUpService {
 
     private static final Logger LOGGER = LogManager.getLogger(RoundUpService.class);
     private final StarlingClient starlingClient;
-    private final String SAVINGS_GOALS_NAME = "RoundUp2024";
+    private final String SAVINGS_GOALS_NAME = "RoundUp2025";
 
     @Autowired
     public RoundUpService(StarlingClient starlingClient) {
@@ -34,8 +36,12 @@ public class RoundUpService {
         int roundUpTotal = calculateRoundUp(transactions);
 
         SavingsAccountDto savingsAccount = ensureSavingsAccountExists(account);
-        boolean success = transferRoundUpToSavings(account, savingsAccount, roundUpTotal);
+        if (savingsAccount == null) {
+            starlingClient.createSavingsGoal(account.getAccountUid(), SAVINGS_GOALS_NAME);
+            savingsAccount = ensureSavingsAccountExists(account);
+        }
 
+        boolean success = transferRoundUpToSavings(account, savingsAccount, roundUpTotal);
         if (!success) {
             throw new Exception("Failed to transfer round up amount.");
         }
@@ -53,7 +59,6 @@ public class RoundUpService {
 
     private List<TransactionDto> fetchValidTransactions(AccountDto account) {
         String accountUuid = account.getAccountUid();
-        String categoryId = account.getDefaultCategory();
 
         // Assumption: We are fetching transactions from yesterday (last full day) to last week
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -63,7 +68,7 @@ public class RoundUpService {
         String minTimestamp = lastWeek.atStartOfDay().format(formatter);
         String maxTimestamp = yesterday.atTime(23, 59, 59).format(formatter);
 
-        return starlingClient.fetchTransactions(accountUuid, categoryId, minTimestamp, maxTimestamp)
+        return starlingClient.fetchTransactions(accountUuid, minTimestamp, maxTimestamp)
                 .stream()
                 .filter(this::isValidTransaction)
                 .toList();
@@ -75,7 +80,7 @@ public class RoundUpService {
                 .filter(savingsAccount -> savingsAccount.getName().equals(SAVINGS_GOALS_NAME))
                 .filter(savingsAccount -> savingsAccount.getState().equals("ACTIVE"))
                 .findFirst()
-                .orElseThrow(() -> new Exception("No active savings account found with the specified name."));
+                .orElse(null);
     }
 
     private boolean transferRoundUpToSavings(AccountDto account, SavingsAccountDto savingsAccount, int roundUpTotal) {
@@ -101,14 +106,9 @@ public class RoundUpService {
         return totalRoundUp;
     }
 
-    public String getAccountInfo() {
-         return JsonUtil.convertListToJson(starlingClient.fetchClientAccounts());
-    }
-
     private boolean isValidTransaction(TransactionDto transaction) {
         return transaction.getDirection().equalsIgnoreCase("OUT")
                 && transaction.getAmount().getMinorUnits() > 0
-                && transaction.getAmount().getCurrency().equalsIgnoreCase("GBP")
-                && "SETTLED".equals(transaction.getStatus());
+                && transaction.getAmount().getCurrency().equalsIgnoreCase("GBP");
     }
 }
