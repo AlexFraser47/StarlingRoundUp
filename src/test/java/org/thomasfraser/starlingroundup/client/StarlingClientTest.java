@@ -43,7 +43,8 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), eq(AccountsResponseDto.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertThrows(Exception.class, () -> starlingClient.fetchClientAccounts());
+        Exception exception = assertThrows(Exception.class, () -> starlingClient.fetchClientAccounts());
+        assertEquals("Failed to fetch accounts: " + HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @Test
@@ -66,7 +67,8 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertThrows(Exception.class, () -> starlingClient.fetchTransactions("uuid", "minTimestamp", "maxTimestamp"));
+        Exception exception = assertThrows(Exception.class, () -> starlingClient.fetchTransactions("uuid", "minTimestamp", "maxTimestamp"));
+        assertEquals("Failed to fetch transactions: " + HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @Test
@@ -89,7 +91,8 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertThrows(Exception.class, () -> starlingClient.createSavingsGoal("uuid", "savingsGoalsName"));
+        Exception exception = assertThrows(Exception.class, () -> starlingClient.createSavingsGoal("uuid", "savingsGoalsName"));
+        assertEquals("Failed to create savings goal: " + HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @Test
@@ -105,7 +108,8 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertThrows(Exception.class, () -> starlingClient.getSavingsGoals("uuid"));
+        Exception exception = assertThrows(Exception.class, () -> starlingClient.getSavingsGoals("uuid"));
+        assertEquals("Failed to fetch savings goals: " + HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     @Test

@@ -57,7 +57,7 @@ class RoundUpServiceTest {
     }
 
     @Test
-    void noValidTransactionsFoundReturnsZeroRoundUpTest() throws Exception {
+    void noValidTransactionsFoundReturnsZeroTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
         when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createInvalidTransactions());
 
@@ -65,7 +65,7 @@ class RoundUpServiceTest {
     }
 
     @Test
-    void createSavingsAccountIfNoneExistRoundUpTest() throws Exception {
+    void createSavingsAccountIfNoneExistTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
         when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
         when(starlingClient.getSavingsGoals(any())).thenReturn(List.of()).thenReturn(createValidSavingsAccount());
@@ -79,7 +79,7 @@ class RoundUpServiceTest {
     }
 
     @Test
-    void createSavingsAccountIfInvalidRoundUpTest() throws Exception {
+    void createSavingsAccountIfInvalidAccountExistsTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
         when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
         when(starlingClient.getSavingsGoals(any())).thenReturn(createInvalidSavingsAccount()).thenReturn(createValidSavingsAccount());
@@ -93,7 +93,7 @@ class RoundUpServiceTest {
     }
 
     @Test
-    void transferRoundUpFailsRoundUpTest() throws Exception {
+    void transferRoundUpFailsTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
         when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
         when(starlingClient.getSavingsGoals(any())).thenReturn(createValidSavingsAccount());

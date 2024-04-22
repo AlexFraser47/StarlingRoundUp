@@ -126,7 +126,7 @@ public class StarlingClient {
             LOGGER.info("Successfully fetched savings goals: {}", response.getBody().getSavingsGoalList().size());
             return response.getBody().getSavingsGoalList();
         } else {
-            throw new Exception("Failed to fetch savings goals:" + response.getStatusCode());
+            throw new Exception("Failed to fetch savings goals: " + response.getStatusCode());
         }
     }
 

@@ -99,7 +99,6 @@ public class RoundUpService {
         return formattedRoundUp;
     }
 
-    // using long here just to be safe
     private long calculateRoundUp(List<TransactionDto> validTransactions) {
         long totalRoundUp = 0;
         for (TransactionDto transaction : validTransactions) {
