@@ -33,7 +33,12 @@ public class RoundUpService {
         List<AccountDto> accounts = starlingClient.fetchClientAccounts();
         AccountDto account = getPrimaryAccount(accounts);
         List<TransactionDto> transactions = fetchValidTransactions(account);
-        int roundUpTotal = calculateRoundUp(transactions);
+        long roundUpTotal = calculateRoundUp(transactions);
+
+        if (roundUpTotal == 0) {
+            LOGGER.info("No round up amount to transfer.");
+            return BigDecimal.ZERO;
+        }
 
         SavingsAccountDto savingsAccount = ensureSavingsAccountExists(account);
         if (savingsAccount == null) {
@@ -83,23 +88,26 @@ public class RoundUpService {
                 .orElse(null);
     }
 
-    private boolean transferRoundUpToSavings(AccountDto account, SavingsAccountDto savingsAccount, int roundUpTotal) {
+    private boolean transferRoundUpToSavings(AccountDto account, SavingsAccountDto savingsAccount, long roundUpTotal) {
         return starlingClient.addMoneyToSavingsGoal(account.getAccountUid(), savingsAccount.getSavingsGoalUid(), roundUpTotal);
     }
 
-    private BigDecimal convertToBigDecimal(int roundUpTotal) {
+    private BigDecimal convertToBigDecimal(long roundUpTotal) {
         BigDecimal formattedRoundUp = new BigDecimal(roundUpTotal).divide(new BigDecimal(100));
 
         LOGGER.debug("Converting {}, to {}", roundUpTotal, formattedRoundUp);
         return formattedRoundUp;
     }
 
-    private int calculateRoundUp(List<TransactionDto> validTransactions) {
-        int totalRoundUp = 0;
+    // using long here just to be safe
+    private long calculateRoundUp(List<TransactionDto> validTransactions) {
+        long totalRoundUp = 0;
         for (TransactionDto transaction : validTransactions) {
-            int minorUnits = transaction.getAmount().getMinorUnits();
-            int remainder = minorUnits % 100;
-
+            long minorUnits = transaction.getAmount().getMinorUnits();
+            if (minorUnits % 100 == 0) {
+                continue;
+            }
+            long remainder = minorUnits % 100;
             totalRoundUp += 100 - remainder;
         }
 
@@ -107,6 +115,7 @@ public class RoundUpService {
     }
 
     private boolean isValidTransaction(TransactionDto transaction) {
+        //Assuming we are only interested in GBP transactions
         return transaction.getDirection().equalsIgnoreCase("OUT")
                 && transaction.getAmount().getMinorUnits() > 0
                 && transaction.getAmount().getCurrency().equalsIgnoreCase("GBP");

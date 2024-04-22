@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.thomasfraser.starlingroundup.dto.*;
 
-import java.util.Collections;
 import java.util.List;
 
 import java.util.UUID;
@@ -116,7 +115,7 @@ public class StarlingClient {
         }
     }
 
-    public boolean addMoneyToSavingsGoal(String accountUuid, String savingsGoalUid, int roundUpTotal) {
+    public boolean addMoneyToSavingsGoal(String accountUuid, String savingsGoalUid, long roundUpTotal) {
         AmountDto amountDto = new AmountDto();
         amountDto.setCurrency("GBP");
         amountDto.setMinorUnits(roundUpTotal);

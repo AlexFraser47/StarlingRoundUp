@@ -39,13 +39,7 @@ public class RoundUpController {
 }
 
 // TODO
-// 1. Transfer savings to a savings account
-// 2. Add tests
-// 3. Add more logging?
-// 4. Move URLS and tokens to properties file
 // 5. Handle amount vs source amount
-// 6. Handle dates?
 // 7. Settled time, edge case?
-// 8. Clean up http header code and use appconfig.java to set up beans and request headers.
 // 9. Add enums from api docs
 // 10. Handle currency

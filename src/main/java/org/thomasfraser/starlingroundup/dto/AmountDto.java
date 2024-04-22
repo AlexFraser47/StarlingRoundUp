@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class AmountDto {
     private String currency;
-    private int minorUnits;
+    private long minorUnits;
 }
