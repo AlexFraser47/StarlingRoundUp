@@ -37,10 +37,3 @@ public class RoundUpController {
         }
     }
 }
-
-// TODO
-// 5. Handle amount vs source amount
-// 7. Settled time, edge case?
-// 9. Add enums from api docs
-// 10. Handle currency
-// 11. Better exception handling

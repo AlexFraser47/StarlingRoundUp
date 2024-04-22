@@ -40,7 +40,7 @@ class StarlingClientTest {
 
     @Test
     void fetchClientAccountsThrowsExceptionWhenResponseIsNotOkTest() {
-        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
+        when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), eq(AccountsResponseDto.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
         assertThrows(Exception.class, () -> starlingClient.fetchClientAccounts());

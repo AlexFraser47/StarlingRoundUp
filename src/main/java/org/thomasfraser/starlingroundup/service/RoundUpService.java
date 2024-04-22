@@ -10,7 +10,7 @@ import org.thomasfraser.starlingroundup.dto.SavingsAccountDto;
 import org.thomasfraser.starlingroundup.dto.TransactionDto;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -65,13 +65,13 @@ public class RoundUpService {
     private List<TransactionDto> fetchValidTransactions(AccountDto account) throws Exception {
         String accountUuid = account.getAccountUid();
 
-        // Assumption: We are fetching transactions from yesterday (last full day) to last week
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        LocalDate lastWeek = yesterday.minusDays(7);
+        // Assumption: We are fetching transactions from curren time to 7 days ago.
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysAgo = now.minusDays(7);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        String minTimestamp = lastWeek.atStartOfDay().format(formatter);
-        String maxTimestamp = yesterday.atTime(23, 59, 59).format(formatter);
+        String minTimestamp = sevenDaysAgo.format(formatter);
+        String maxTimestamp = now.format(formatter);
 
         return starlingClient.fetchTransactions(accountUuid, minTimestamp, maxTimestamp)
                 .stream()
