@@ -11,7 +11,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.thomasfraser.starlingroundup.dto.*;
 
 import java.util.List;
-
 import java.util.UUID;
 
 /**
@@ -31,14 +30,30 @@ public class StarlingClient {
     @Autowired
     private RestTemplate restTemplate;
 
+    private static HttpEntity<SavingsGoalRequestDto> getSavingsGoalRequestDtoHttpEntity(HttpHeaders headers, String savingsGoalsName) {
+        SavingsGoalRequestDto savingsGoalRequestDto = new SavingsGoalRequestDto();
+        savingsGoalRequestDto.setName(savingsGoalsName);
+        savingsGoalRequestDto.setCurrency("GBP");
+
+        // Hardcoding the target amount for now
+        AmountDto targetDto = new AmountDto();
+        targetDto.setCurrency("GBP");
+        targetDto.setMinorUnits(100000);
+
+        savingsGoalRequestDto.setTarget(targetDto);
+        savingsGoalRequestDto.setBase64EncodedPhoto("string");
+
+        return new HttpEntity<>(savingsGoalRequestDto, headers);
+    }
+
     public List<AccountDto> fetchClientAccounts() throws Exception {
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            ResponseEntity<AccountsResponseDto> response = restTemplate.exchange(
-                    baseUrl + "/accounts",
-                    HttpMethod.GET,
-                    entity,
-                    AccountsResponseDto.class
-            );
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<AccountsResponseDto> response = restTemplate.exchange(
+                baseUrl + "/accounts",
+                HttpMethod.GET,
+                entity,
+                AccountsResponseDto.class
+        );
 
         if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null && response.getBody().getAccounts() != null) {
             LOGGER.info("Successfully fetched {} accounts", response.getBody().getAccounts().size());
@@ -146,22 +161,6 @@ public class StarlingClient {
             LOGGER.error("Failed to add money to savings goal: {}", response.getStatusCode());
             return false;
         }
-    }
-
-    private static HttpEntity<SavingsGoalRequestDto> getSavingsGoalRequestDtoHttpEntity(HttpHeaders headers, String savingsGoalsName) {
-        SavingsGoalRequestDto savingsGoalRequestDto = new SavingsGoalRequestDto();
-        savingsGoalRequestDto.setName(savingsGoalsName);
-        savingsGoalRequestDto.setCurrency("GBP");
-
-        // Hardcoding the target amount for now
-        AmountDto targetDto = new AmountDto();
-        targetDto.setCurrency("GBP");
-        targetDto.setMinorUnits(100000);
-
-        savingsGoalRequestDto.setTarget(targetDto);
-        savingsGoalRequestDto.setBase64EncodedPhoto("string");
-
-        return new HttpEntity<>(savingsGoalRequestDto, headers);
     }
 
 }

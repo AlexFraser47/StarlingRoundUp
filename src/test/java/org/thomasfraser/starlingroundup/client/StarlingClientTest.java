@@ -6,7 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 import org.thomasfraser.starlingroundup.config.AppConfig;
@@ -63,7 +66,7 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertThrows(Exception.class, ()-> starlingClient.fetchTransactions("uuid", "minTimestamp", "maxTimestamp"));
+        assertThrows(Exception.class, () -> starlingClient.fetchTransactions("uuid", "minTimestamp", "maxTimestamp"));
     }
 
     @Test

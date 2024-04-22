@@ -15,7 +15,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 class RoundUpServiceTest {
@@ -163,7 +164,7 @@ class RoundUpServiceTest {
         transactionDto5.setAmount(amountDto5);
         transactionDto5.setDirection("OUT");
 
-        return  List.of(transactionDto1, transactionDto2, transactionDto3, transactionDto4, transactionDto5);
+        return List.of(transactionDto1, transactionDto2, transactionDto3, transactionDto4, transactionDto5);
     }
 
     private List<TransactionDto> createInvalidTransactions() {
@@ -183,7 +184,7 @@ class RoundUpServiceTest {
         transactionDto2.setAmount(amountDto2);
         transactionDto2.setDirection("OUT");
 
-        return  List.of(transactionDto1, transactionDto2);
+        return List.of(transactionDto1, transactionDto2);
     }
 
     private List<SavingsAccountDto> createInvalidSavingsAccount() {

@@ -32,7 +32,7 @@ public class RoundUpController {
         try {
             BigDecimal roundUpAmount = roundUpService.calculateAndTransferRoundUp();
             return ResponseEntity.ok("Round up completed successfully. Total rounded up: £" + roundUpAmount);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to complete round up: " + e.getMessage());
         }
     }
@@ -43,3 +43,4 @@ public class RoundUpController {
 // 7. Settled time, edge case?
 // 9. Add enums from api docs
 // 10. Handle currency
+// 11. Better exception handling
