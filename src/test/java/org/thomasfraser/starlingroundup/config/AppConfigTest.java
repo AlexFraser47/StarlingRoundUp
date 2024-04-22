@@ -16,9 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AppConfigTest {
 
-    @Mock
-    private RestTemplate restTemplate;
-
     @InjectMocks
     private AppConfig appConfig;
 

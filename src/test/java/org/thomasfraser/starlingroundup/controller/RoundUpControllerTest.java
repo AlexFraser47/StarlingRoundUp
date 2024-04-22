@@ -38,7 +38,7 @@ class RoundUpControllerTest {
 
     @Test
     void shouldReturnErrorMessageWhenRoundUpFailsTest() throws Exception {
-        String errorMessage = "Failed to complete round up: Error message";
+        String errorMessage = "Failed to complete round up";
         when(roundUpService.calculateAndTransferRoundUp()).thenThrow(new Exception("Error message"));
 
         ResponseEntity<String> response = roundUpController.roundup();
