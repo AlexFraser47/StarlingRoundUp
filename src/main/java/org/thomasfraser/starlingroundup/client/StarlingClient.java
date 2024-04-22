@@ -32,7 +32,7 @@ public class StarlingClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    public List<AccountDto> fetchClientAccounts() {
+    public List<AccountDto> fetchClientAccounts() throws Exception {
             HttpEntity<String> entity = new HttpEntity<>(headers);
             ResponseEntity<AccountsResponseDto> response = restTemplate.exchange(
                     baseUrl + "/accounts",
@@ -45,15 +45,13 @@ public class StarlingClient {
             LOGGER.info("Successfully fetched {} accounts", response.getBody().getAccounts().size());
             return response.getBody().getAccounts();
         } else {
-            LOGGER.error("Failed to fetch accounts: {}", response.getStatusCode());
-            return Collections.emptyList();
+            throw new Exception("Failed to fetch accounts: " + response.getStatusCode());
         }
     }
 
-    public List<TransactionDto> fetchTransactions(String accountUuid, String minTimestamp, String maxTimestamp) {
+    public List<TransactionDto> fetchTransactions(String accountUuid, String minTimestamp, String maxTimestamp) throws Exception {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        // Building the URL with query parameters
         String urlTemplate = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/feed/account/" + accountUuid + "/settled-transactions-between")
                 .queryParam("minTransactionTimestamp", minTimestamp)
@@ -71,15 +69,13 @@ public class StarlingClient {
             LOGGER.info("Successfully fetched transactions: {}", response.getBody().getFeedItems().size());
             return response.getBody().getFeedItems();
         } else {
-            LOGGER.error("Failed to fetch transactions: {}", response.getStatusCode());
-            return Collections.emptyList();
+            throw new Exception("Failed to fetch transactions: " + response.getStatusCode());
         }
     }
 
     public void createSavingsGoal(String accountUuid, String savingsGoalsName) throws Exception {
         HttpEntity<SavingsGoalRequestDto> entity = getSavingsGoalRequestDtoHttpEntity(headers, savingsGoalsName);
 
-        // Building the URL with query parameters
         String urlTemplate = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/account/" + accountUuid + "/savings-goals")
                 .toUriString();
@@ -101,7 +97,6 @@ public class StarlingClient {
     public List<SavingsAccountDto> getSavingsGoals(String accountUuid) throws Exception {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        // Building the URL with query parameters
         String urlTemplate = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/account/" + accountUuid + "/savings-goals")
                 .toUriString();
@@ -159,7 +154,8 @@ public class StarlingClient {
         savingsGoalRequestDto.setName(savingsGoalsName);
         savingsGoalRequestDto.setCurrency("GBP");
 
-        TargetDto targetDto = new TargetDto();
+        // Hardcoding the target amount for now
+        AmountDto targetDto = new AmountDto();
         targetDto.setCurrency("GBP");
         targetDto.setMinorUnits(100000);
 

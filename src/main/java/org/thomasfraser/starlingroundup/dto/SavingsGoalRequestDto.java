@@ -8,6 +8,6 @@ import lombok.Setter;
 public class SavingsGoalRequestDto {
     private String name;
     private String currency;
-    private TargetDto target;
+    private AmountDto target;
     private String base64EncodedPhoto;
 }

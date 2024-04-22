@@ -57,7 +57,7 @@ public class RoundUpService {
                 .orElseThrow(() -> new Exception("No primary account found."));
     }
 
-    private List<TransactionDto> fetchValidTransactions(AccountDto account) {
+    private List<TransactionDto> fetchValidTransactions(AccountDto account) throws Exception {
         String accountUuid = account.getAccountUid();
 
         // Assumption: We are fetching transactions from yesterday (last full day) to last week
