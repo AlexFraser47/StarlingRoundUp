@@ -33,7 +33,8 @@ public class RoundUpController {
             BigDecimal roundUpAmount = roundUpService.calculateAndTransferRoundUp();
             return ResponseEntity.ok("Round up completed successfully. Total rounded up: £" + roundUpAmount);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Failed to complete round up: " + e.getMessage());
+            LOGGER.error("Failed to complete round up: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("Failed to complete round up");
         }
     }
 }

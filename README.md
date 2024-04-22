@@ -12,6 +12,7 @@ So everytime the user calls the /roundup endpoint, the application will round up
 from account, filter by this and use it as our savings account currency).
 - Some values such as currency, savings account name & target amount as hard coded, this wouldn't be the case for prod.
 - Generic exceptions are used when requests fail, these would need changed so they don't mask unexpected exceptions.
+- Assuming the json fields are set as not null in the db as their presence is required for the task to be executed.
 
 ## Requirements:
 - Java 17 (https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
@@ -22,6 +23,6 @@ from account, filter by this and use it as our savings account currency).
 1. Clone the repository
 2. Open the project in your IDE
 3. Run `mvn clean install` to download the dependencies
-5. Add api token to application.properties file
-6. Run the project from the main class
-7. Open your browser and navigate to `http://localhost:8080/api/roundup` to execute the task
+4. Add api token to application.properties file
+5. Run the project from the main class
+6. Open your browser and navigate to `http://localhost:8080/api/roundup` to execute the task

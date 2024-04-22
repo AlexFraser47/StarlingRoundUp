@@ -46,6 +46,14 @@ class RoundUpServiceTest {
     }
 
     @Test
+    void RoundUpOnlyHundredsTest() throws Exception {
+        when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransactionHundreds());
+
+        assertEquals(BigDecimal.ZERO, roundUpService.calculateAndTransferRoundUp());
+    }
+
+    @Test
     void noAccountFoundRoundUpTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(List.of(new AccountDto()));
 
@@ -143,6 +151,50 @@ class RoundUpServiceTest {
         AmountDto amountDto5 = new AmountDto();
         amountDto5.setCurrency("GBP");
         amountDto5.setMinorUnits(12345674249L);
+
+        TransactionDto transactionDto1 = new TransactionDto();
+        transactionDto1.setAmount(amountDto1);
+        transactionDto1.setDirection("OUT");
+
+        TransactionDto transactionDto2 = new TransactionDto();
+        transactionDto2.setAmount(amountDto2);
+        transactionDto2.setDirection("OUT");
+
+        TransactionDto transactionDto3 = new TransactionDto();
+        transactionDto3.setAmount(amountDto3);
+        transactionDto3.setDirection("OUT");
+
+        TransactionDto transactionDto4 = new TransactionDto();
+        transactionDto4.setAmount(amountDto4);
+        transactionDto4.setDirection("OUT");
+
+        TransactionDto transactionDto5 = new TransactionDto();
+        transactionDto5.setAmount(amountDto5);
+        transactionDto5.setDirection("OUT");
+
+        return List.of(transactionDto1, transactionDto2, transactionDto3, transactionDto4, transactionDto5);
+    }
+
+    private List<TransactionDto> createValidTransactionHundreds() {
+        AmountDto amountDto1 = new AmountDto();
+        amountDto1.setCurrency(null);
+        amountDto1.setMinorUnits(5600);
+
+        AmountDto amountDto2 = new AmountDto();
+        amountDto2.setCurrency("GBP");
+        amountDto2.setMinorUnits(45600);
+
+        AmountDto amountDto3 = new AmountDto();
+        amountDto3.setCurrency("GBP");
+        amountDto3.setMinorUnits(900);
+
+        AmountDto amountDto4 = new AmountDto();
+        amountDto4.setCurrency("GBP");
+        amountDto4.setMinorUnits(0);
+
+        AmountDto amountDto5 = new AmountDto();
+        amountDto5.setCurrency("GBP");
+        amountDto5.setMinorUnits(12345674200L);
 
         TransactionDto transactionDto1 = new TransactionDto();
         transactionDto1.setAmount(amountDto1);
