@@ -177,7 +177,7 @@ class RoundUpServiceTest {
 
     private List<TransactionDto> createValidTransactionHundreds() {
         AmountDto amountDto1 = new AmountDto();
-        amountDto1.setCurrency(null);
+        amountDto1.setCurrency("GBP");
         amountDto1.setMinorUnits(5600);
 
         AmountDto amountDto2 = new AmountDto();
