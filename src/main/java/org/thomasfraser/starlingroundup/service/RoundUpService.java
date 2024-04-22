@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for handling round up operations.
@@ -42,7 +43,7 @@ public class RoundUpService {
 
         SavingsAccountDto savingsAccount = ensureSavingsAccountExists(account);
         if (savingsAccount == null) {
-            starlingClient.createSavingsGoal(account.getAccountUid(), SAVINGS_GOALS_NAME);
+            starlingClient.createSavingsGoal(account.getAccountUid(), account.getCurrency(), SAVINGS_GOALS_NAME);
             savingsAccount = ensureSavingsAccountExists(account);
         }
 
@@ -63,7 +64,12 @@ public class RoundUpService {
     }
 
     private List<TransactionDto> fetchValidTransactions(AccountDto account) throws Exception {
-        String accountUuid = account.getAccountUid();
+        // Being safe here and checking for nulls
+        String accountUuid = Optional.ofNullable(account.getAccountUid())
+                .orElseThrow(() -> new Exception("Account UUID cannot be null"));
+
+        String accountCurrency = Optional.ofNullable(account.getCurrency())
+                .orElseThrow(() -> new Exception("Account currency cannot be null"));
 
         // Assumption: We are fetching transactions from curren time to 7 days ago.
         LocalDateTime now = LocalDateTime.now();
@@ -75,7 +81,7 @@ public class RoundUpService {
 
         return starlingClient.fetchTransactions(accountUuid, minTimestamp, maxTimestamp)
                 .stream()
-                .filter(this::isValidTransaction)
+                .filter(transaction -> isValidTransaction(transaction, accountCurrency))
                 .toList();
     }
 
@@ -89,7 +95,7 @@ public class RoundUpService {
     }
 
     private boolean transferRoundUpToSavings(AccountDto account, SavingsAccountDto savingsAccount, long roundUpTotal) {
-        return starlingClient.addMoneyToSavingsGoal(account.getAccountUid(), savingsAccount.getSavingsGoalUid(), roundUpTotal);
+        return starlingClient.addMoneyToSavingsGoal(account.getAccountUid(), account.getCurrency(), savingsAccount.getSavingsGoalUid(), roundUpTotal);
     }
 
     private BigDecimal convertToBigDecimal(long roundUpTotal) {
@@ -113,10 +119,9 @@ public class RoundUpService {
         return totalRoundUp;
     }
 
-    private boolean isValidTransaction(TransactionDto transaction) {
-        //Assuming we are only interested in GBP transactions
+    private boolean isValidTransaction(TransactionDto transaction, String accountCurrency) {
         return transaction.getDirection().equalsIgnoreCase("OUT")
                 && transaction.getAmount().getMinorUnits() > 0
-                && transaction.getAmount().getCurrency().equalsIgnoreCase("GBP");
+                && transaction.getAmount().getCurrency().equalsIgnoreCase(accountCurrency);
     }
 }

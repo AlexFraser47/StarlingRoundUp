@@ -30,14 +30,13 @@ public class StarlingClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    private static HttpEntity<SavingsGoalRequestDto> getSavingsGoalRequestDtoHttpEntity(HttpHeaders headers, String savingsGoalsName) {
+    private static HttpEntity<SavingsGoalRequestDto> getSavingsGoalRequestDtoHttpEntity(HttpHeaders headers, String accountCurrency, String savingsGoalsName) {
         SavingsGoalRequestDto savingsGoalRequestDto = new SavingsGoalRequestDto();
         savingsGoalRequestDto.setName(savingsGoalsName);
-        savingsGoalRequestDto.setCurrency("GBP");
+        savingsGoalRequestDto.setCurrency(accountCurrency);
 
-        // Hardcoding the target amount for now
         AmountDto targetDto = new AmountDto();
-        targetDto.setCurrency("GBP");
+        targetDto.setCurrency(accountCurrency);
         targetDto.setMinorUnits(100000);
 
         savingsGoalRequestDto.setTarget(targetDto);
@@ -87,8 +86,8 @@ public class StarlingClient {
         }
     }
 
-    public void createSavingsGoal(String accountUuid, String savingsGoalsName) throws Exception {
-        HttpEntity<SavingsGoalRequestDto> entity = getSavingsGoalRequestDtoHttpEntity(headers, savingsGoalsName);
+    public void createSavingsGoal(String accountUuid, String accountCurrency, String savingsGoalsName) throws Exception {
+        HttpEntity<SavingsGoalRequestDto> entity = getSavingsGoalRequestDtoHttpEntity(headers, accountCurrency, savingsGoalsName);
 
         String urlTemplate = UriComponentsBuilder
                 .fromHttpUrl(baseUrl + "/account/" + accountUuid + "/savings-goals")
@@ -130,9 +129,9 @@ public class StarlingClient {
         }
     }
 
-    public boolean addMoneyToSavingsGoal(String accountUuid, String savingsGoalUid, long roundUpTotal) {
+    public boolean addMoneyToSavingsGoal(String accountUuid, String currency, String savingsGoalUid, long roundUpTotal) {
         AmountDto amountDto = new AmountDto();
-        amountDto.setCurrency("GBP");
+        amountDto.setCurrency(currency);
         amountDto.setMinorUnits(roundUpTotal);
 
         TransferAmountDtoWrapper transferAmountDtoWrapper = new TransferAmountDtoWrapper();

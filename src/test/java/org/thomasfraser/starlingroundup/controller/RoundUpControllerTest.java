@@ -33,7 +33,7 @@ class RoundUpControllerTest {
 
         ResponseEntity<String> response = roundUpController.roundup();
 
-        assertEquals(ResponseEntity.ok("Round up completed successfully. Total rounded up: £" + roundUpAmount), response);
+        assertEquals(ResponseEntity.ok("Round up completed successfully. Total rounded up: " + roundUpAmount), response);
     }
 
     @Test

@@ -91,7 +91,7 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        Exception exception = assertThrows(Exception.class, () -> starlingClient.createSavingsGoal("uuid", "savingsGoalsName"));
+        Exception exception = assertThrows(Exception.class, () -> starlingClient.createSavingsGoal("uuid", "GBP", "savingsGoalsName"));
         assertEquals("Failed to create savings goal: " + HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
@@ -100,7 +100,7 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
-        assertDoesNotThrow(() -> starlingClient.createSavingsGoal("uuid", "savingsGoalsName"));
+        assertDoesNotThrow(() -> starlingClient.createSavingsGoal("uuid", "GBP", "savingsGoalsName"));
     }
 
     @Test
@@ -132,7 +132,7 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        assertFalse(starlingClient.addMoneyToSavingsGoal("accountUuid", "savingsGoalUid", 100));
+        assertFalse(starlingClient.addMoneyToSavingsGoal("accountUuid", "GBP", "savingsGoalUid", 100));
     }
 
     @Test
@@ -140,6 +140,6 @@ class StarlingClientTest {
         when(restTemplate.exchange(any(String.class), any(HttpMethod.class), any(HttpEntity.class), any(Class.class)))
                 .thenReturn(new ResponseEntity<>(HttpStatus.OK));
 
-        assertTrue(starlingClient.addMoneyToSavingsGoal("accountUuid", "savingsGoalUid", 100));
+        assertTrue(starlingClient.addMoneyToSavingsGoal("accountUuid", "GBP", "savingsGoalUid", 100));
     }
 }

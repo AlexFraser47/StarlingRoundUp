@@ -33,11 +33,11 @@ class RoundUpServiceTest {
     }
 
     @Test
-    void validSimpleRoundUpTest() throws Exception {
+    void validSimpleRoundUpGBPTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
-        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("GBP"));
         when(starlingClient.getSavingsGoals(any())).thenReturn(createValidSavingsAccount());
-        when(starlingClient.addMoneyToSavingsGoal(any(), any(), anyLong())).thenReturn(true);
+        when(starlingClient.addMoneyToSavingsGoal(any(), any(), any(), anyLong())).thenReturn(true);
 
         BigDecimal expected = new BigDecimal(201).divide(new BigDecimal(100));
 
@@ -46,11 +46,43 @@ class RoundUpServiceTest {
     }
 
     @Test
+    void validSimpleRoundUpUSDTest() throws Exception {
+        when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccountUSD());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("USD"));
+        when(starlingClient.getSavingsGoals(any())).thenReturn(createValidSavingsAccount());
+        when(starlingClient.addMoneyToSavingsGoal(any(), any(), any(), anyLong())).thenReturn(true);
+
+        BigDecimal expected = new BigDecimal(201).divide(new BigDecimal(100));
+
+        assertEquals(expected, roundUpService.calculateAndTransferRoundUp());
+        verify(starlingClient, times(1)).getSavingsGoals(any());
+    }
+
+    @Test
+    void accountCurrencyDoesntMatchTransactionCurrencyTest() throws Exception {
+        when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("USD"));
+
+        assertEquals(BigDecimal.ZERO, roundUpService.calculateAndTransferRoundUp());
+    }
+
+    @Test
     void RoundUpOnlyHundredsTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
         when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransactionHundreds());
 
         assertEquals(BigDecimal.ZERO, roundUpService.calculateAndTransferRoundUp());
+    }
+
+    @Test
+    void noCurrencyFoundInPrimaryAccountTest() throws Exception {
+        when(starlingClient.fetchClientAccounts()).thenReturn(createInvalidAccount());
+
+        String expectedMessage = "Account currency cannot be null";
+
+        Exception exception = assertThrows(Exception.class, () -> roundUpService.calculateAndTransferRoundUp());
+
+        assertTrue(exception.getMessage().contains(expectedMessage));
     }
 
     @Test
@@ -75,37 +107,37 @@ class RoundUpServiceTest {
     @Test
     void createSavingsAccountIfNoneExistTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
-        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("GBP"));
         when(starlingClient.getSavingsGoals(any())).thenReturn(List.of()).thenReturn(createValidSavingsAccount());
-        when(starlingClient.addMoneyToSavingsGoal(any(), any(), anyLong())).thenReturn(true);
+        when(starlingClient.addMoneyToSavingsGoal(any(), any(), any(), anyLong())).thenReturn(true);
 
         BigDecimal expected = new BigDecimal(201).divide(new BigDecimal(100));
         assertEquals(expected, roundUpService.calculateAndTransferRoundUp());
 
-        verify(starlingClient, times(1)).createSavingsGoal(any(), any());
+        verify(starlingClient, times(1)).createSavingsGoal(any(), any(), any());
         verify(starlingClient, times(2)).getSavingsGoals(any());
     }
 
     @Test
     void createSavingsAccountIfInvalidAccountExistsTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
-        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("GBP"));
         when(starlingClient.getSavingsGoals(any())).thenReturn(createInvalidSavingsAccount()).thenReturn(createValidSavingsAccount());
-        when(starlingClient.addMoneyToSavingsGoal(any(), any(), anyLong())).thenReturn(true);
+        when(starlingClient.addMoneyToSavingsGoal(any(), any(), any(), anyLong())).thenReturn(true);
 
         BigDecimal expected = new BigDecimal(201).divide(new BigDecimal(100));
         assertEquals(expected, roundUpService.calculateAndTransferRoundUp());
 
-        verify(starlingClient, times(1)).createSavingsGoal(any(), any());
+        verify(starlingClient, times(1)).createSavingsGoal(any(), any(), any());
         verify(starlingClient, times(2)).getSavingsGoals(any());
     }
 
     @Test
     void transferRoundUpFailsTest() throws Exception {
         when(starlingClient.fetchClientAccounts()).thenReturn(createValidAccount());
-        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction());
+        when(starlingClient.fetchTransactions(any(), any(), any())).thenReturn(createValidTransaction("GBP"));
         when(starlingClient.getSavingsGoals(any())).thenReturn(createValidSavingsAccount());
-        when(starlingClient.addMoneyToSavingsGoal(any(), any(), anyLong())).thenReturn(false);
+        when(starlingClient.addMoneyToSavingsGoal(any(), any(), any(), anyLong())).thenReturn(false);
 
         String expectedMessage = "Failed to transfer round up amount.";
 
@@ -128,28 +160,45 @@ class RoundUpServiceTest {
         AccountDto accountDto = new AccountDto();
         accountDto.setAccountUid("1234");
         accountDto.setAccountType("PRIMARY");
+        accountDto.setCurrency("GBP");
         return List.of(accountDto);
     }
 
-    private List<TransactionDto> createValidTransaction() {
+    private List<AccountDto> createValidAccountUSD() {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountUid("1234");
+        accountDto.setAccountType("PRIMARY");
+        accountDto.setCurrency("USD");
+        return List.of(accountDto);
+    }
+
+    private List<AccountDto> createInvalidAccount() {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountUid("1234");
+        accountDto.setAccountType("PRIMARY");
+        accountDto.setCurrency(null);
+        return List.of(accountDto);
+    }
+
+    private List<TransactionDto> createValidTransaction(String currency) {
         AmountDto amountDto1 = new AmountDto();
-        amountDto1.setCurrency("GBP");
+        amountDto1.setCurrency(currency);
         amountDto1.setMinorUnits(1001);
 
         AmountDto amountDto2 = new AmountDto();
-        amountDto2.setCurrency("GBP");
+        amountDto2.setCurrency(currency);
         amountDto2.setMinorUnits(0);
 
         AmountDto amountDto3 = new AmountDto();
-        amountDto3.setCurrency("GBP");
+        amountDto3.setCurrency(currency);
         amountDto3.setMinorUnits(999);
 
         AmountDto amountDto4 = new AmountDto();
-        amountDto4.setCurrency("GBP");
+        amountDto4.setCurrency(currency);
         amountDto4.setMinorUnits(50);
 
         AmountDto amountDto5 = new AmountDto();
-        amountDto5.setCurrency("GBP");
+        amountDto5.setCurrency(currency);
         amountDto5.setMinorUnits(12345674249L);
 
         TransactionDto transactionDto1 = new TransactionDto();
